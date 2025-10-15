@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Entities\Appointment.cs~RF301321f.TMP" />
+  </ItemGroup>
+
 </Project>
