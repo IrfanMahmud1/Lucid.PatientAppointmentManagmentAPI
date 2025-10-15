@@ -19,8 +19,4 @@
     <ProjectReference Include="..\Lucid.PAMS.Domain\Lucid.PAMS.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>
