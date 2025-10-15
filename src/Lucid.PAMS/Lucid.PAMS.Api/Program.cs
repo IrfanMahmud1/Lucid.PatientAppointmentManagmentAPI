@@ -1,3 +1,5 @@
+using Lucid.PAMS.Domain;
+using Lucid.PAMS.Infrastructure;
 using Lucid.PAMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +10,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Add services to the container.
+builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
