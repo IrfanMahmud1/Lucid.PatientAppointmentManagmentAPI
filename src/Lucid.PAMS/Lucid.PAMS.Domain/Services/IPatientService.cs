@@ -1,4 +1,5 @@
-﻿using Lucid.PAMS.Domain.Entities;
+﻿using Lucid.PAMS.Domain.Dtos;
+using Lucid.PAMS.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Lucid.PAMS.Domain.Services
 {
     public interface IPatientService
     {
-        Task CreatePatientAsync(Patient patient);
-        Task UpdatePatientAsync(Patient patient);
-        Task DeletePatientAsync(Guid id);
-        Task<Patient> GetPatientByIdAsync(Guid id);
-        Task<IEnumerable<Patient>> GetAllPatientsAsync();
+        Task<ResponseDto<PatientDto>> CreatePatientAsync(CreatePatientDto patient);
+        Task<ResponseDto<PatientDto>> UpdatePatientAsync(UpdatePatientDto patient);
+        Task<ResponseDto<PatientDto>> DeletePatientAsync(Guid id);
+        Task<ResponseDto<PatientDto>> GetPatientByIdAsync(Guid id);
+        Task<ResponseDto<PatientDto>> GetAllPatientsAsync();
     }
 }

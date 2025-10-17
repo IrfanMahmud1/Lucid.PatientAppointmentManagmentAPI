@@ -1,5 +1,8 @@
-﻿using Lucid.PAMS.Domain;
+﻿using Lucid.PAMS.Application.Exceptions;
+using Lucid.PAMS.Domain;
+using Lucid.PAMS.Domain.Dtos;
 using Lucid.PAMS.Domain.Entities;
+using Lucid.PAMS.Domain.Mappers;
 using Lucid.PAMS.Domain.Services;
 using System;
 using System.Collections.Generic;
@@ -12,77 +15,145 @@ namespace Lucid.PAMS.Application.Services
     public class PatientService : IPatientService
     {
         private readonly IApplicationUnitOfWork _applicationUnitOfWork;
-        public PatientService(IApplicationUnitOfWork applicationUnitOfWork)
+        private readonly IPatientMapper _mapper;
+
+        public PatientService(IApplicationUnitOfWork applicationUnitOfWork, IPatientMapper mapper)
         {
-            _applicationUnitOfWork = applicationUnitOfWork;
+            _applicationUnitOfWork = applicationUnitOfWork ?? throw new ArgumentNullException(nameof(applicationUnitOfWork));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(IPatientMapper));
         }
 
-        public async Task CreatePatientAsync(Patient patient)
+        // Create patient with duplicate check
+
+        public async Task<ResponseDto<PatientDto>> CreatePatientAsync(CreatePatientDto patient)
         {
+            if (patient == null)
+            {
+                return ResponseDto<PatientDto>.Fail("Patient is required");
+            }
+
+            if(patient.Id != Guid.Empty)
+            {
+                return ResponseDto<PatientDto>.Fail("New patient id must be empty");
+            }
+
             try
             {
-                if (!await _applicationUnitOfWork.PatientRepository.IsPatientDuplicateAsync(patient.Name, patient.Phone))
+                // this pre-check is only an early optimization.
+                if (await _applicationUnitOfWork.PatientRepository.IsPatientDuplicateAsync(patient.Name, patient.Phone))
                 {
-                    await _applicationUnitOfWork.PatientRepository.AddAsync(patient);
-                    await _applicationUnitOfWork.SaveAsync();
+                    throw new DuplicatePatientException("A patient with the same name and phone number already exists.");
                 }
-                throw new ArgumentException("Duplicate patient found");
+
+                await _applicationUnitOfWork.PatientRepository.AddAsync(_mapper.Map(patient));
+                await _applicationUnitOfWork.SaveAsync();
+
+                var patientDto = _mapper.Map(_mapper.Map(patient));
+                return  ResponseDto<PatientDto>.Ok("Patient created successfully", patientDto );
             }
-            catch (Exception)
+            catch (DuplicatePatientException ex)
             {
-                throw;
+                return ResponseDto<PatientDto>.Fail(ex.Message );
+            }
+            catch (Exception ex)
+            {
+                return ResponseDto<PatientDto>.Fail("Failed to create patient");
             }
         }
-        public async Task UpdatePatientAsync(Patient patient)
+
+        // Update patient with duplicate check
+        public async Task<ResponseDto<PatientDto>> UpdatePatientAsync(UpdatePatientDto patient)
         {
+            if (patient == null)
+            {
+                return ResponseDto<PatientDto>.Fail("Patient is required");
+            }
+
+            if (patient.Id == Guid.Empty)
+            {
+                return ResponseDto<PatientDto>.Fail("Invalid patient id");
+            }
+
             try
             {
-                if (!await _applicationUnitOfWork.PatientRepository.IsPatientDuplicateAsync(patient.Name, patient.Phone, patient.Id))
+                if (await _applicationUnitOfWork.PatientRepository.IsPatientDuplicateAsync(patient.Name, patient.Phone, patient.Id))
                 {
-                    await _applicationUnitOfWork.PatientRepository.EditAsync(patient);
-                    await _applicationUnitOfWork.SaveAsync();
+                    throw new DuplicatePatientException("A patient with the same name and phone number already exists.");
                 }
-                throw new ArgumentException("Duplicate patient found");
+
+                await _applicationUnitOfWork.PatientRepository.EditAsync(_mapper.Map(patient));
+                await _applicationUnitOfWork.SaveAsync();
+
+                var patientDto = _mapper.Map(_mapper.Map(patient));
+                return ResponseDto<PatientDto>.Ok("Patient created successfully", patientDto);
             }
-            catch (Exception)
+            catch (DuplicatePatientException ex)
             {
-                throw;
+                return ResponseDto<PatientDto>.Fail(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return ResponseDto<PatientDto>.Fail("Failed to update patient");
             }
         }
-        public async Task DeletePatientAsync(Guid id)
+
+        // Delete patient by id
+
+        public async Task<ResponseDto<PatientDto>> DeletePatientAsync(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return ResponseDto<PatientDto>.Fail("Invalid patient id");
+            }
+
             try
             {
                 await _applicationUnitOfWork.PatientRepository.RemoveAsync(id);
                 await _applicationUnitOfWork.SaveAsync();
+
+                return ResponseDto<PatientDto>.Ok("Patient deleted successfully");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                return ResponseDto<PatientDto>.Fail("Failed to delete patient");
             }
         }
 
-        public async Task<Patient> GetPatientByIdAsync(Guid id)
+        // Get patient by id
+        public async Task<ResponseDto<PatientDto>> GetPatientByIdAsync(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                return ResponseDto<PatientDto>.Fail("Invalid patient id");
+            }
+
             try
             {
-                return await _applicationUnitOfWork.PatientRepository.GetByIdAsync(id);
+                var patient = await _applicationUnitOfWork.PatientRepository.GetByIdAsync(id);
+                if (patient == null)
+                {
+                    return ResponseDto<PatientDto>.Fail("Patient not found");
+                }
+
+                return ResponseDto<PatientDto>.Ok("Patient retrieved successfully");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                return ResponseDto<PatientDto>.Fail("Failed to retrieve patient");
             }
         }
 
-        public async Task<IEnumerable<Patient>> GetAllPatientsAsync()
+        // Get all patients
+        public async Task<ResponseDto<PatientDto>> GetAllPatientsAsync()
         {
             try
             {
-                return await _applicationUnitOfWork.PatientRepository.GetAllAsync();
+                var patients = await _applicationUnitOfWork.PatientRepository.GetAllAsync();
+                return ResponseDto<PatientDto>.Ok("Patients retrieved successfully");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                return ResponseDto<PatientDto>.Fail("Failed to retrieve patients");
             }
         }
     }
