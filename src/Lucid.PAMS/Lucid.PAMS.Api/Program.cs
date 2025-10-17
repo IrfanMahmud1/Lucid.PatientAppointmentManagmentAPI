@@ -2,6 +2,7 @@ using Lucid.PAMS.Domain;
 using Lucid.PAMS.Domain.Repositories;
 using Lucid.PAMS.Infrastructure;
 using Lucid.PAMS.Infrastructure.Data;
+using Lucid.PAMS.Infrastructure.Mappers;
 using Lucid.PAMS.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add services to the container.
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddScoped<IPatientRepository,PatientRepository>();
+
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(PatientMappingProfile).Assembly));
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

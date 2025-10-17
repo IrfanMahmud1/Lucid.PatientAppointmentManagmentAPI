@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Dtos\ResponseDto.cs~RF612f07.TMP" />
     <None Remove="Entities\Appointment.cs~RF301321f.TMP" />
   </ItemGroup>
 
