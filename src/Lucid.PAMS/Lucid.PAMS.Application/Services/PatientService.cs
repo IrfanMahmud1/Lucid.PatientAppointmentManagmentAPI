@@ -45,10 +45,12 @@ namespace Lucid.PAMS.Application.Services
                     throw new DuplicatePatientException("A patient with the same name and phone number already exists.");
                 }
 
-                await _applicationUnitOfWork.PatientRepository.AddAsync(_mapper.Map(patient));
+                var patientEntity = _mapper.MapFromCreateDto(patient);
+
+                await _applicationUnitOfWork.PatientRepository.AddAsync(patientEntity);
                 await _applicationUnitOfWork.SaveAsync();
 
-                var patientDto = _mapper.Map(_mapper.Map(patient));
+                var patientDto = _mapper.MapToDto(patientEntity);
                 return  ResponseDto<PatientDto>.Ok("Patient created successfully", patientDto );
             }
             catch (DuplicatePatientException ex)
@@ -81,10 +83,12 @@ namespace Lucid.PAMS.Application.Services
                     throw new DuplicatePatientException("A patient with the same name and phone number already exists.");
                 }
 
-                await _applicationUnitOfWork.PatientRepository.EditAsync(_mapper.Map(patient));
+                var patientEntity = _mapper.MapFromUpdateDto(patient);
+
+                await _applicationUnitOfWork.PatientRepository.EditAsync(patientEntity);
                 await _applicationUnitOfWork.SaveAsync();
 
-                var patientDto = _mapper.Map(_mapper.Map(patient));
+                var patientDto = _mapper.MapToDto(patientEntity);
                 return ResponseDto<PatientDto>.Ok("Patient created successfully", patientDto);
             }
             catch (DuplicatePatientException ex)
@@ -135,7 +139,7 @@ namespace Lucid.PAMS.Application.Services
                     return ResponseDto<PatientDto>.Fail("Patient not found");
                 }
 
-                return ResponseDto<PatientDto>.Ok("Patient retrieved successfully");
+                return ResponseDto<PatientDto>.Ok("Patient retrieved successfully",_mapper.MapToDto(patient));
             }
             catch (Exception ex)
             {
@@ -144,16 +148,16 @@ namespace Lucid.PAMS.Application.Services
         }
 
         // Get all patients
-        public async Task<ResponseDto<PatientDto>> GetAllPatientsAsync()
+        public async Task<ResponseDto<IEnumerable<PatientDto>>> GetAllPatientsAsync()
         {
             try
             {
                 var patients = await _applicationUnitOfWork.PatientRepository.GetAllAsync();
-                return ResponseDto<PatientDto>.Ok("Patients retrieved successfully");
+                return ResponseDto<IEnumerable<PatientDto>>.Ok("Patients retrieved successfully",_mapper.MapToDtos(patients));
             }
             catch (Exception ex)
             {
-                return ResponseDto<PatientDto>.Fail("Failed to retrieve patients");
+                return ResponseDto<IEnumerable<PatientDto>>.Fail("Failed to retrieve patients");
             }
         }
     }

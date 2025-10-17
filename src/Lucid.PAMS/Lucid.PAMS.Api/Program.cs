@@ -7,13 +7,21 @@ using Lucid.PAMS.Infrastructure;
 using Lucid.PAMS.Infrastructure.Data;
 using Lucid.PAMS.Infrastructure.Mappers;
 using Lucid.PAMS.Infrastructure.Repositories;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Lucid.PAMS.Api.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Add Fluent Validation
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdatePatientValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreatePatientValidator>();
 
 // Add services to the container.
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();

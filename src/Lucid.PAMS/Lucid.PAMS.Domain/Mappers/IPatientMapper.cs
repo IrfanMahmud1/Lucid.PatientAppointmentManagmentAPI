@@ -10,9 +10,10 @@ namespace Lucid.PAMS.Domain.Mappers
 {
     public interface IPatientMapper
     {
-        public PatientDto Map(Patient patient);
-        public Patient Map(PatientDto patient);
-        public Patient Map(CreatePatientDto patient);
-        public Patient Map(UpdatePatientDto patient);
+        public PatientDto MapToDto(Patient patient);
+        public Patient MapToEntity(PatientDto patientDto);
+        public Patient MapFromCreateDto(CreatePatientDto createDto);
+        public Patient MapFromUpdateDto(UpdatePatientDto updateDto);
+        public IEnumerable<PatientDto> MapToDtos(IEnumerable<Patient> patients);
     }
 }

@@ -5,33 +5,43 @@ using Lucid.PAMS.Domain.Mappers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lucid.PAMS.Infrastructure.Mappers
 {
     public class PatientMapper : IPatientMapper
     {
         private readonly IMapper _mapper;
+
         public PatientMapper(IMapper mapper)
         {
-            _mapper = mapper;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
-        public PatientDto Map(Patient patient)
+
+        public PatientDto MapToDto(Patient patient)
         {
+            if (patient == null) throw new ArgumentNullException(nameof(patient));
             return _mapper.Map<PatientDto>(patient);
         }
-        public Patient Map(PatientDto patient)
+
+        public Patient MapToEntity(PatientDto patientDto)
         {
-            return _mapper.Map<Patient>(patient);
+            if (patientDto == null) throw new ArgumentNullException(nameof(patientDto));
+            return _mapper.Map<Patient>(patientDto);
         }
-        public Patient Map(CreatePatientDto patient)
+
+        public Patient MapFromCreateDto(CreatePatientDto createDto)
         {
-            return _mapper.Map<Patient>(patient);
+            if (createDto == null) throw new ArgumentNullException(nameof(createDto));
+            return _mapper.Map<Patient>(createDto);
         }
-        public Patient Map(UpdatePatientDto patient)
+
+        public Patient MapFromUpdateDto(UpdatePatientDto updateDto)
         {
-            return _mapper.Map<Patient>(patient);
+            if (updateDto == null) throw new ArgumentNullException(nameof(updateDto));
+            return _mapper.Map<Patient>(updateDto);
         }
+
+        public IEnumerable<PatientDto> MapToDtos(IEnumerable<Patient> patients) =>
+            (patients ?? Enumerable.Empty<Patient>()).Select(p => _mapper.Map<PatientDto>(p));
     }
 }
