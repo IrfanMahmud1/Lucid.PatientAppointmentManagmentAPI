@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Services\PatientService.cs~RF30d3f0.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lucid.PAMS.Domain\Lucid.PAMS.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

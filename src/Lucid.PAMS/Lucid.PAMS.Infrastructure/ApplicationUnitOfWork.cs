@@ -1,4 +1,5 @@
 ﻿using Lucid.PAMS.Domain;
+using Lucid.PAMS.Domain.Repositories;
 using Lucid.PAMS.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,8 +12,11 @@ namespace Lucid.PAMS.Infrastructure
 {
     public class ApplicationUnitOfWork : UnitOfWork, IApplicationUnitOfWork
     {
-        public ApplicationUnitOfWork(ApplicationDbContext applicationDbContext) : base(applicationDbContext)
+        public IPatientRepository PatientRepository { get; private set; }
+        public ApplicationUnitOfWork(ApplicationDbContext applicationDbContext,
+            IPatientRepository patientRepository) : base(applicationDbContext)
         {
+            PatientRepository = patientRepository;
         }
     }
 }

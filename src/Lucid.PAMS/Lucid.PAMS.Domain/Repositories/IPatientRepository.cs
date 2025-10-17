@@ -9,5 +9,6 @@ namespace Lucid.PAMS.Domain.Repositories
 {
     public interface IPatientRepository : IRepository<Patient, Guid>
     {
+        public Task<bool> IsPatientDuplicateAsync(string name, string phone, Guid? id = null);
     }
 }
