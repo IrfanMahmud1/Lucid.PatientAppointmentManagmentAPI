@@ -10,5 +10,6 @@ namespace Lucid.PAMS.Domain
     public interface IApplicationUnitOfWork : IUnitOfWork
     {
         public IPatientRepository PatientRepository { get; }
+        public IDoctorRepository DoctorRepository { get; }
     }
 }

@@ -27,7 +27,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreatePatientValidator>();
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddScoped<IPatientRepository,PatientRepository>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IPatientMapper, PatientMapper>();
+builder.Services.AddScoped<IDoctorMapper, DoctorMapper>();
 
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(PatientMappingProfile).Assembly));
 

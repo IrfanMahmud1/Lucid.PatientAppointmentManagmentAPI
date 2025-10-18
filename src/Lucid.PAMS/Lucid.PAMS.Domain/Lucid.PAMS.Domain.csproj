@@ -9,6 +9,7 @@
   <ItemGroup>
     <None Remove="Dtos\ResponseDto.cs~RF612f07.TMP" />
     <None Remove="Entities\Appointment.cs~RF301321f.TMP" />
+    <None Remove="Repositories\IDoctorRepository.cs~RF187ea1.TMP" />
   </ItemGroup>
 
 </Project>
