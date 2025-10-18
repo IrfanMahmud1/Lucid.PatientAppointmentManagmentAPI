@@ -6,6 +6,7 @@ namespace Lucid.PAMS.Infrastructure.Data
     public class ApplicationDbContext : DbContext
     {
         public DbSet<Patient> Patients { get; set; }
+        public DbSet<Doctor> Doctors { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -30,6 +31,15 @@ namespace Lucid.PAMS.Infrastructure.Data
                 patient.Property(p => p.Gender).IsRequired().HasMaxLength(10);
                 patient.Property(p => p.Address).IsRequired().HasMaxLength(200);
                 patient.Property(p => p.Age).IsRequired();
+            });
+
+            modelBuilder.Entity<Doctor>(doctor =>
+            {
+                doctor.HasKey(d => d.Id);
+                doctor.Property(d => d.Name).IsRequired().HasMaxLength(100);
+                doctor.Property(d => d.Department).IsRequired().HasMaxLength(100);
+                doctor.Property(d => d.Phone).IsRequired().HasMaxLength(15);
+                doctor.Property(d => d.Fee).IsRequired().HasColumnType("decimal(18,2)");
             });
 
             base.OnModelCreating(modelBuilder);
