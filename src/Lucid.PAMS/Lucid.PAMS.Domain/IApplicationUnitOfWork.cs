@@ -11,5 +11,6 @@ namespace Lucid.PAMS.Domain
     {
         public IPatientRepository PatientRepository { get; }
         public IDoctorRepository DoctorRepository { get; }
+        public IAppointmentRepository AppointmentRepository { get; }
     }
 }

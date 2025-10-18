@@ -89,7 +89,7 @@ namespace Lucid.PAMS.Application.Services
                 await _applicationUnitOfWork.SaveAsync();
 
                 var patientDto = _mapper.MapToDto(patientEntity);
-                return ResponseDto<PatientDto>.Ok("Patient created successfully", patientDto);
+                return ResponseDto<PatientDto>.Ok("Patient updated successfully", patientDto);
             }
             catch (DuplicatePatientException ex)
             {

@@ -14,12 +14,16 @@ namespace Lucid.PAMS.Infrastructure
     {
         public IPatientRepository PatientRepository { get; private set; }
         public IDoctorRepository DoctorRepository { get; private set; }
+        public IAppointmentRepository AppointmentRepository { get; private set; }
         public ApplicationUnitOfWork(ApplicationDbContext applicationDbContext,
             IPatientRepository patientRepository,
-            IDoctorRepository doctorRepository) : base(applicationDbContext)
+            IDoctorRepository doctorRepository,
+            IAppointmentRepository appointmentRepository) : base(applicationDbContext)
         {
             PatientRepository = patientRepository;
             DoctorRepository = doctorRepository;
+            AppointmentRepository = appointmentRepository;
+
         }
     }
 }
