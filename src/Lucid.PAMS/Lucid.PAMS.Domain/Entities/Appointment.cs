@@ -16,7 +16,7 @@ namespace Lucid.PAMS.Domain.Entities
         public DateTime AppointmentDate { get; set; }
         public string Status { get; set; }
         public int TokenNumber { get; set; }
-        public Guid TenantId { get; set; }
+        public string TenantId { get; set; }
 
         // Navigation properties
         public Patient Patient { get; set; }
