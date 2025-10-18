@@ -32,11 +32,6 @@ namespace Lucid.PAMS.Application.Services
                 return ResponseDto<DoctorDto>.Fail("Doctor is required");
             }
 
-            if(doctor.Id != Guid.Empty)
-            {
-                return ResponseDto<DoctorDto>.Fail("New doctor id must be empty");
-            }
-
             try
             {
 
@@ -53,7 +48,31 @@ namespace Lucid.PAMS.Application.Services
                 return ResponseDto<DoctorDto>.Fail("Failed to create doctor");
             }
         }
-       
+
+        // Get doctor by id
+        public async Task<ResponseDto<DoctorDto>> GetDoctorByIdAsync(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return ResponseDto<DoctorDto>.Fail("Invalid doctor id");
+            }
+
+            try
+            {
+                var doctor = await _applicationUnitOfWork.DoctorRepository.GetByIdAsync(id);
+                if (doctor == null)
+                {
+                    return ResponseDto<DoctorDto>.Fail("doctor not found");
+                }
+
+                return ResponseDto<DoctorDto>.Ok("doctor retrieved successfully", _mapper.MapToDto(doctor));
+            }
+            catch (Exception ex)
+            {
+                return ResponseDto<DoctorDto>.Fail("Failed to retrieve doctor");
+            }
+        }
+
 
         // Get all doctors
         public async Task<ResponseDto<IEnumerable<DoctorDto>>> GetAllDoctorsAsync()

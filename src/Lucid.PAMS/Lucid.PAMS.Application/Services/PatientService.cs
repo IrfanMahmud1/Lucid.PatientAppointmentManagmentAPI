@@ -32,9 +32,9 @@ namespace Lucid.PAMS.Application.Services
                 return ResponseDto<PatientDto>.Fail("Patient is required");
             }
 
-            if(patient.Id != Guid.Empty)
+            if(patient.Id == Guid.Empty)
             {
-                return ResponseDto<PatientDto>.Fail("New patient id must be empty");
+                patient.Id = Guid.NewGuid();
             }
 
             try

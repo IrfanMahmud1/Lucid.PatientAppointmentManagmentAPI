@@ -87,7 +87,7 @@ namespace Lucid.PAMS.Api.Controllers
                 }
 
                 // Fallback if Data not returned
-                return CreatedAtAction(nameof(GetPatient), new { id = patient.Id }, patient);
+                return StatusCode(StatusCodes.Status201Created);
             }
 
             if (res.Message?.Contains("Duplicate", StringComparison.OrdinalIgnoreCase) == true)

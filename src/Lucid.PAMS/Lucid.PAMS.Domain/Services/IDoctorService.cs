@@ -12,5 +12,6 @@ namespace Lucid.PAMS.Domain.Services
     {
         Task<ResponseDto<DoctorDto>> CreateDoctorAsync(CreateDoctorDto patient);
         Task<ResponseDto<IEnumerable<DoctorDto>>> GetAllDoctorsAsync();
+        Task<ResponseDto<DoctorDto>> GetDoctorByIdAsync(Guid id);
     }
 }

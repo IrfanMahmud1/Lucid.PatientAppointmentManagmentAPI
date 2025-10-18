@@ -22,12 +22,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<UpdatePatientValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<CreatePatientValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateDoctorValidator>();
 
 // Add services to the container.
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddScoped<IPatientRepository,PatientRepository>();
-builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IPatientMapper, PatientMapper>();
 builder.Services.AddScoped<IDoctorMapper, DoctorMapper>();
 

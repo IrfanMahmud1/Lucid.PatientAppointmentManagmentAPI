@@ -18,8 +18,9 @@ namespace Lucid.PAMS.Api.Validators
             RuleFor(x => x.Phone)
                 .NotNull().WithMessage("Phone is required.")
                 .NotEmpty().WithMessage("Phone is required.")
-                .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Phone number is not valid.")
+                .Matches(@"^\d{11}$").WithMessage("Phone number must be exactly 11 digits long and contain only numbers.")
                 .When(x => !string.IsNullOrWhiteSpace(x.Phone));
+
 
             // Age: reasonable range
             RuleFor(x => x.Age)
