@@ -32,10 +32,6 @@ namespace Lucid.PAMS.Application.Services
                 return ResponseDto<DoctorDto>.Fail("Doctor is required");
             }
 
-            if(doctor.Id == Guid.Empty)
-            {
-                doctor.Id = Guid.NewGuid();
-            }
 
             try
             {

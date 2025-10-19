@@ -31,11 +31,6 @@ namespace Lucid.PAMS.Application.Services
             {
                 return ResponseDto<AppointmentDto>.Fail("Appointment is required");
             }
-            // Assign new Guid if not provided
-            if (appointment.Id == Guid.Empty)
-            {
-                appointment.Id = Guid.NewGuid();
-            }
 
             try
             {
@@ -88,12 +83,24 @@ namespace Lucid.PAMS.Application.Services
             {
                 // get existing appointment
                 var appointmentEntity = await _applicationUnitOfWork.AppointmentRepository.GetByIdAsync(appointment.Id);
+
+                // check if appointment exists
                 if (appointmentEntity == null)
                 {
                     return ResponseDto<AppointmentDto>.Fail("Appointment not found");
                 }
+                // Prevent updates to completed appointments
+                if (appointmentEntity.Status == "Completed")
+                {
+                    return ResponseDto<AppointmentDto>.Fail("Completed appointment cannot be updated");
+                }
+                // Prevent updates to cancelled appointments
+                if (appointmentEntity.Status == "Cancelled")
+                {
+                    return ResponseDto<AppointmentDto>.Fail("Cancelled appointment cannot be updated");
+                }
                 // Map Appointment from Update DTO
-                appointmentEntity = _mapper.MapFromUpdateDto(appointment);
+                appointmentEntity = _mapper.MapFromUpdateDto(appointment,appointmentEntity);
 
                 // Update appointment
                 await _applicationUnitOfWork.AppointmentRepository.EditAsync(appointmentEntity);

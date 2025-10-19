@@ -13,7 +13,7 @@ namespace Lucid.PAMS.Domain.Mappers
         public AppointmentDto MapToDto(Appointment patient);
         public Appointment MapToEntity(AppointmentDto patientDto);
         public Appointment MapFromBookDto(BookAppointmentDto createDto);
-        public Appointment MapFromUpdateDto(UpdateAppointmentDto updateDto);
+        public Appointment MapFromUpdateDto(UpdateAppointmentDto updateDto, Appointment appointment);
         public IEnumerable<AppointmentDto> MapToDtos(IEnumerable<Appointment> patients);
     }
 }

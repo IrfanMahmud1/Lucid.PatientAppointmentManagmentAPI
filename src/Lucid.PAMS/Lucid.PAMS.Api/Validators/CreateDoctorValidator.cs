@@ -10,23 +10,21 @@ namespace Lucid.PAMS.Api.Validators
 
             // Name: required, reasonable length
             RuleFor(x => x.Name)
-                .NotNull().WithMessage("Name is required.")
                 .NotEmpty().WithMessage("Name is required.")
-                .Length(2, 100).WithMessage("Name must be between 2 and 100 characters.");
+                .Length(2, 100).WithMessage("Name must be between 2 and 100 characters.")
+                .NotEqual("string").WithMessage("Name cannot be the default value 'string'.");
 
             // Phone: required , basic format
             RuleFor(x => x.Phone)
-                .NotNull().WithMessage("Phone is required.")
                 .NotEmpty().WithMessage("Phone is required.")
-                .Matches(@"^\d{11}$").WithMessage("Phone number must be exactly 11 digits long and contain only numbers.")
-                .When(x => !string.IsNullOrWhiteSpace(x.Phone));
+                .Matches(@"^\d{11}$").WithMessage("Phone number must be exactly 11 digits long and contain only numbers.");
 
 
             // Department: required, reasonable length
             RuleFor(x => x.Department)
-                .NotNull().WithMessage("Department is required.")
                 .NotEmpty().WithMessage("Department is required.")
-                .Length(2, 100).WithMessage("Department must be between 2 and 100 characters.");
+                .Length(2, 100).WithMessage("Department must be between 2 and 100 characters.")
+                .NotEqual("string").WithMessage("Department cannot be the default value 'string'.");
 
             // Fee: required, positive value
             RuleFor(x => x.Fee)

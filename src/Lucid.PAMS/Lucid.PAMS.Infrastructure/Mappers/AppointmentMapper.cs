@@ -35,10 +35,10 @@ namespace Lucid.PAMS.Infrastructure.Mappers
             return _mapper.Map<Appointment>(createDto);
         }
 
-        public Appointment MapFromUpdateDto(UpdateAppointmentDto updateDto)
+        public Appointment MapFromUpdateDto(UpdateAppointmentDto updateDto,Appointment appointment)
         {
             if (updateDto == null) throw new ArgumentNullException(nameof(updateDto));
-            return _mapper.Map<Appointment>(updateDto);
+            return _mapper.Map(updateDto,appointment);
         }
 
         public IEnumerable<AppointmentDto> MapToDtos(IEnumerable<Appointment> patients) =>

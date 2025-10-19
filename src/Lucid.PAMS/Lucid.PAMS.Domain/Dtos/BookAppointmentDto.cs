@@ -9,7 +9,6 @@ namespace Lucid.PAMS.Domain.Dtos
 {
     public class BookAppointmentDto
     {
-        public Guid Id { get; set; }
         public Guid PatientId { get; set; }
         public Guid DoctorId { get; set; }
         public DateTime AppointmentDate { get; set; }

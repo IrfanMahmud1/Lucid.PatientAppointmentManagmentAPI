@@ -28,10 +28,13 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateDoctorValidator>();
 builder.Services.AddScoped<IApplicationUnitOfWork, ApplicationUnitOfWork>();
 builder.Services.AddScoped<IPatientRepository,PatientRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IPatientMapper, PatientMapper>();
 builder.Services.AddScoped<IDoctorMapper, DoctorMapper>();
+builder.Services.AddScoped<IAppointmentMapper, AppointmentMapper>();
 
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(PatientMappingProfile).Assembly));
 

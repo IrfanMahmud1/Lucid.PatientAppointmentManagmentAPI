@@ -31,11 +31,6 @@ namespace Lucid.PAMS.Application.Services
             {
                 return ResponseDto<PatientDto>.Fail("Patient is required");
             }
-            // Assign new Guid if not provided
-            if (patient.Id == Guid.Empty)
-            {
-                patient.Id = Guid.NewGuid();
-            }
 
             try
             {
@@ -93,7 +88,7 @@ namespace Lucid.PAMS.Application.Services
                     return ResponseDto<PatientDto>.Fail("Patient not found");
                 }
                 // Map DTO to entity
-                patientEntity = _mapper.MapFromUpdateDto(patient);
+                patientEntity = _mapper.MapFromUpdateDto(patient,patientEntity);
 
                 // Update patient
                 await _applicationUnitOfWork.PatientRepository.EditAsync(patientEntity);
