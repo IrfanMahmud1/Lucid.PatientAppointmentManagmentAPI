@@ -31,31 +31,40 @@ namespace Lucid.PAMS.Application.Services
             {
                 return ResponseDto<AppointmentDto>.Fail("Appointment is required");
             }
-
-            if(appointment.Id == Guid.Empty)
+            // Assign new Guid if not provided
+            if (appointment.Id == Guid.Empty)
             {
                 appointment.Id = Guid.NewGuid();
             }
-
+            // Default status to "Pending" if not provided
+            if (string.IsNullOrEmpty(appointment.Status))
+            {
+                appointment.Status = "Pending";
+            }
             try
             {
                 // this pre-check is only an early optimization.
-                if (await _applicationUnitOfWork.AppointmentRepository.IsAppointmentDuplicateAsync(appointment.PatientId, appointment.DoctorId,appointment.AppointmentDate))
+                if (await _applicationUnitOfWork.AppointmentRepository.IsAppointmentDuplicateAsync(appointment.PatientId, appointment.DoctorId, appointment.AppointmentDate))
                 {
                     throw new DuplicateAppointmentException("An appointment with the same patient and doctor on this date already exists.");
                 }
-
+                // Map Appointment from Book DTO
                 var appointmentEntity = _mapper.MapFromBookDto(appointment);
 
+                // Generate token number
+                appointmentEntity.TokenNumber = await GenerateTokenAsync(appointment.DoctorId, appointment.AppointmentDate);
+
+                // Save appointment
                 await _applicationUnitOfWork.AppointmentRepository.AddAsync(appointmentEntity);
                 await _applicationUnitOfWork.SaveAsync();
 
+                // Map to DTO
                 var appointmentDto = _mapper.MapToDto(appointmentEntity);
-                return  ResponseDto<AppointmentDto>.Ok("Appointment booked successfully", appointmentDto );
+                return ResponseDto<AppointmentDto>.Ok("Appointment booked successfully", appointmentDto);
             }
             catch (DuplicateAppointmentException ex)
             {
-                return ResponseDto<AppointmentDto>.Fail(ex.Message );
+                return ResponseDto<AppointmentDto>.Fail(ex.Message);
             }
             catch (Exception ex)
             {
@@ -71,6 +80,7 @@ namespace Lucid.PAMS.Application.Services
                 return ResponseDto<AppointmentDto>.Fail("Appointment is required");
             }
 
+            // Validate appointment id
             if (appointment.Id == Guid.Empty)
             {
                 return ResponseDto<AppointmentDto>.Fail("Invalid appointment id");
@@ -78,16 +88,20 @@ namespace Lucid.PAMS.Application.Services
 
             try
             {
-                if (await _applicationUnitOfWork.AppointmentRepository.IsAppointmentDuplicateAsync(appointment.PatientId, appointment.DoctorId, appointment.AppointmentDate))
+                // get existing appointment
+                var appointmentEntity = await _applicationUnitOfWork.AppointmentRepository.GetByIdAsync(appointment.Id);
+                if (appointmentEntity == null)
                 {
-                    throw new DuplicateAppointmentException("An appointment with the same patient and doctor on this date already exists.");
+                    return ResponseDto<AppointmentDto>.Fail("Appointment not found");
                 }
+                // Map Appointment from Update DTO
+                appointmentEntity = _mapper.MapFromUpdateDto(appointment);
 
-                var appointmentEntity = _mapper.MapFromUpdateDto(appointment);
-
+                // Update appointment
                 await _applicationUnitOfWork.AppointmentRepository.EditAsync(appointmentEntity);
                 await _applicationUnitOfWork.SaveAsync();
 
+                // Map to DTO
                 var appointmentDto = _mapper.MapToDto(appointmentEntity);
                 return ResponseDto<AppointmentDto>.Ok("Appointment updated successfully", appointmentDto);
             }
@@ -105,6 +119,7 @@ namespace Lucid.PAMS.Application.Services
         // Get appointment by id
         public async Task<ResponseDto<AppointmentDto>> GetAppointmentByIdAsync(Guid id)
         {
+            // Validate appointment id
             if (id == Guid.Empty)
             {
                 return ResponseDto<AppointmentDto>.Fail("Invalid appointment id");
@@ -112,13 +127,14 @@ namespace Lucid.PAMS.Application.Services
 
             try
             {
+                // Get appointment
                 var appointment = await _applicationUnitOfWork.AppointmentRepository.GetByIdAsync(id);
                 if (appointment == null)
                 {
                     return ResponseDto<AppointmentDto>.Fail("Appointment not found");
                 }
 
-                return ResponseDto<AppointmentDto>.Ok("Appointment retrieved successfully",_mapper.MapToDto(appointment));
+                return ResponseDto<AppointmentDto>.Ok("Appointment retrieved successfully", _mapper.MapToDto(appointment));
             }
             catch (Exception ex)
             {
@@ -131,13 +147,31 @@ namespace Lucid.PAMS.Application.Services
         {
             try
             {
+                // Get all appointments
                 var appointments = await _applicationUnitOfWork.AppointmentRepository.GetAllAsync();
-                return ResponseDto<IEnumerable<AppointmentDto>>.Ok("Appointments retrieved successfully",_mapper.MapToDtos(appointments));
+                return ResponseDto<IEnumerable<AppointmentDto>>.Ok("Appointments retrieved successfully", _mapper.MapToDtos(appointments));
             }
             catch (Exception ex)
             {
                 return ResponseDto<IEnumerable<AppointmentDto>>.Fail("Failed to retrieve appointments");
             }
+        }
+
+        // Generate appointment token
+
+        private async Task<int> GenerateTokenAsync(Guid doctorId, DateTime appointmentDate)
+        {
+            // Only consider same doctor and same day
+            var existingTokens = await _applicationUnitOfWork.AppointmentRepository
+                .GetAllAsync(a => a.DoctorId == doctorId && a.AppointmentDate.Date == appointmentDate.Date);
+
+            int nextToken = 1;
+            if (existingTokens.Any())
+            {
+                nextToken = existingTokens.Max(a => a.TokenNumber) + 1;
+            }
+
+            return nextToken;
         }
 
     }

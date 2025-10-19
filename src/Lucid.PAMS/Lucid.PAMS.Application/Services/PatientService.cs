@@ -31,8 +31,8 @@ namespace Lucid.PAMS.Application.Services
             {
                 return ResponseDto<PatientDto>.Fail("Patient is required");
             }
-
-            if(patient.Id == Guid.Empty)
+            // Assign new Guid if not provided
+            if (patient.Id == Guid.Empty)
             {
                 patient.Id = Guid.NewGuid();
             }
@@ -44,12 +44,14 @@ namespace Lucid.PAMS.Application.Services
                 {
                     throw new DuplicatePatientException("A patient with the same name and phone number already exists.");
                 }
-
+                // Map DTO to entity
                 var patientEntity = _mapper.MapFromCreateDto(patient);
 
+                // Create patient
                 await _applicationUnitOfWork.PatientRepository.AddAsync(patientEntity);
                 await _applicationUnitOfWork.SaveAsync();
 
+                // Map entity to DTO
                 var patientDto = _mapper.MapToDto(patientEntity);
                 return  ResponseDto<PatientDto>.Ok("Patient created successfully", patientDto );
             }
@@ -70,7 +72,7 @@ namespace Lucid.PAMS.Application.Services
             {
                 return ResponseDto<PatientDto>.Fail("Patient is required");
             }
-
+            // Validate Id
             if (patient.Id == Guid.Empty)
             {
                 return ResponseDto<PatientDto>.Fail("Invalid patient id");
@@ -78,16 +80,26 @@ namespace Lucid.PAMS.Application.Services
 
             try
             {
+                // this duplicate pre-check is only an early optimization.
                 if (await _applicationUnitOfWork.PatientRepository.IsPatientDuplicateAsync(patient.Name, patient.Phone, patient.Id))
                 {
                     throw new DuplicatePatientException("A patient with the same name and phone number already exists.");
                 }
 
-                var patientEntity = _mapper.MapFromUpdateDto(patient);
+                // Get existing patient
+                var patientEntity = await _applicationUnitOfWork.PatientRepository.GetByIdAsync(patient.Id);
+                if (patientEntity == null)
+                {
+                    return ResponseDto<PatientDto>.Fail("Patient not found");
+                }
+                // Map DTO to entity
+                patientEntity = _mapper.MapFromUpdateDto(patient);
 
+                // Update patient
                 await _applicationUnitOfWork.PatientRepository.EditAsync(patientEntity);
                 await _applicationUnitOfWork.SaveAsync();
 
+                // Map entity to DTO
                 var patientDto = _mapper.MapToDto(patientEntity);
                 return ResponseDto<PatientDto>.Ok("Patient updated successfully", patientDto);
             }
@@ -105,6 +117,7 @@ namespace Lucid.PAMS.Application.Services
 
         public async Task<ResponseDto<PatientDto>> DeletePatientAsync(Guid id)
         {
+            // Validate Id
             if (id == Guid.Empty)
             {
                 return ResponseDto<PatientDto>.Fail("Invalid patient id");
@@ -112,6 +125,7 @@ namespace Lucid.PAMS.Application.Services
 
             try
             {
+                // Check if patient exists
                 await _applicationUnitOfWork.PatientRepository.RemoveAsync(id);
                 await _applicationUnitOfWork.SaveAsync();
 
@@ -126,6 +140,7 @@ namespace Lucid.PAMS.Application.Services
         // Get patient by id
         public async Task<ResponseDto<PatientDto>> GetPatientByIdAsync(Guid id)
         {
+            // Validate Id
             if (id == Guid.Empty)
             {
                 return ResponseDto<PatientDto>.Fail("Invalid patient id");
@@ -133,6 +148,7 @@ namespace Lucid.PAMS.Application.Services
 
             try
             {
+                // Get patient
                 var patient = await _applicationUnitOfWork.PatientRepository.GetByIdAsync(id);
                 if (patient == null)
                 {
@@ -152,6 +168,7 @@ namespace Lucid.PAMS.Application.Services
         {
             try
             {
+                // Get patients
                 var patients = await _applicationUnitOfWork.PatientRepository.GetAllAsync();
                 return ResponseDto<IEnumerable<PatientDto>>.Ok("Patients retrieved successfully",_mapper.MapToDtos(patients));
             }
