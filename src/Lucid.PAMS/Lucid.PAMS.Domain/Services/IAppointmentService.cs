@@ -14,5 +14,6 @@ namespace Lucid.PAMS.Domain.Services
         Task<ResponseDto<AppointmentDto>> UpdateAppointmentAsync(UpdateAppointmentDto patient);
         Task<ResponseDto<AppointmentDto>> GetAppointmentByIdAsync(Guid id);
         Task<ResponseDto<IEnumerable<AppointmentDto>>> GetAllAppointmentsAsync();
+        Task<ResponseDto<IEnumerable<AppointmentDto>>> FilterAppointmentsAsync(FilterAppointmentDto dto);
     }
 }

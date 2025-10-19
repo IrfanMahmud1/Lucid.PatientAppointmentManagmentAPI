@@ -64,6 +64,29 @@ namespace Lucid.PAMS.Api.Controllers
             return Problem(res.Message);
         }
 
+        [HttpGet("filter")]
+        public async Task<ActionResult<ResponseDto<IEnumerable<AppointmentDto>>>> FilterAppointments([FromQuery] FilterAppointmentDto filter)
+        {
+            if (filter.DoctorId == null && filter.AppointmentDate == null)
+            {
+                return BadRequest(ResponseDto<IEnumerable<AppointmentDto>>.Fail("At least one filter parameter (DoctorId or AppointmentDate) is required."));
+            }
+
+            var result = await _appointmentService.FilterAppointmentsAsync(filter);
+
+            if (result == null)
+            {
+                return StatusCode(500, ResponseDto<IEnumerable<AppointmentDto>>.Fail("Failed to filter appointments"));
+            }
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
         // POST: api/Appointments
         [HttpPost]
         public async Task<IActionResult> PostAppointment([FromBody] BookAppointmentDto appointment)

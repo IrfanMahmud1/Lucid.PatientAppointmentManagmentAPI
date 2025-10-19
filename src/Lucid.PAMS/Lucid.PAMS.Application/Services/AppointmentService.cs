@@ -7,6 +7,7 @@ using Lucid.PAMS.Domain.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,11 +35,24 @@ namespace Lucid.PAMS.Application.Services
 
             try
             {
+                // Validate patient and doctor ids
+                var patient = await _applicationUnitOfWork.PatientRepository.GetByIdAsync(appointment.PatientId);
+                if (patient == null)
+                {
+                    return ResponseDto<AppointmentDto>.Fail("Invalid patient Id");
+                }
+                var doctor = await _applicationUnitOfWork.DoctorRepository.GetByIdAsync(appointment.DoctorId);
+                if (doctor == null)
+                {
+                    return ResponseDto<AppointmentDto>.Fail("Doctor does not exist");
+                }
+                // Check for duplicate appointment
                 // this pre-check is only an early optimization.
                 if (await _applicationUnitOfWork.AppointmentRepository.IsAppointmentDuplicateAsync(appointment.PatientId, appointment.DoctorId, appointment.AppointmentDate))
                 {
                     throw new DuplicateAppointmentException("An appointment with the same patient and doctor on this date already exists.");
                 }
+
                 // Map Appointment from Book DTO
                 var appointmentEntity = _mapper.MapFromBookDto(appointment);
 
@@ -161,6 +175,40 @@ namespace Lucid.PAMS.Application.Services
                 return ResponseDto<IEnumerable<AppointmentDto>>.Fail("Failed to retrieve appointments");
             }
         }
+
+        public async Task<ResponseDto<IEnumerable<AppointmentDto>>> FilterAppointmentsAsync(FilterAppointmentDto dto)
+        {
+            try
+            {
+                if (dto.DoctorId == null && dto.AppointmentDate == null)
+                {
+                    return ResponseDto<IEnumerable<AppointmentDto>>.Fail("At least one filter parameter (DoctorId or AppointmentDate) is required.");
+                }
+
+                // Apply conditional filtering
+                var appointments = await _applicationUnitOfWork.AppointmentRepository.GetAllAsync(a =>
+                    (!dto.DoctorId.HasValue || a.DoctorId == dto.DoctorId.Value) &&
+                    (!dto.AppointmentDate.HasValue || a.AppointmentDate.Date == dto.AppointmentDate.Value.Date)
+                );
+
+                if (appointments.Count() == 0)
+                {
+                    return ResponseDto<IEnumerable<AppointmentDto>>.Ok(
+                    "No appointments found",
+                    _mapper.MapToDtos(appointments)
+                );
+                }
+                return ResponseDto<IEnumerable<AppointmentDto>>.Ok(
+                    "Filtered appointments retrieved successfully",
+                    _mapper.MapToDtos(appointments)
+                );
+            }
+            catch (Exception)
+            {
+                return ResponseDto<IEnumerable<AppointmentDto>>.Fail("Failed to retrieve filtered appointments");
+            }
+        }
+
 
         // Generate appointment token
 

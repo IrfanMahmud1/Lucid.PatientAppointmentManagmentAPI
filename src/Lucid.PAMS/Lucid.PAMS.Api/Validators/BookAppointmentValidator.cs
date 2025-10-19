@@ -16,6 +16,9 @@ namespace Lucid.PAMS.Api.Validators
             RuleFor(x => x.AppointmentDate)
                 .NotEmpty().WithMessage("AppointmentDate is required.")
                 .Must(date => date > DateTime.Now).WithMessage("AppointmentDate must be in the future.");
+            RuleFor(x => x.TenantId)
+                .NotEmpty().WithMessage("TenantId is required.")
+               .NotEqual("string").WithMessage("TenantId cannot be the default value 'string'.");
         }
     }
 }

@@ -24,6 +24,7 @@ namespace Lucid.PAMS.Infrastructure.Data
                 appointment.Property(a => a.TokenNumber).IsRequired();
                 appointment.Property(a => a.PatientId).IsRequired();
                 appointment.Property(a => a.DoctorId).IsRequired();
+                appointment.Property(a => a.TenantId).IsRequired();
                 appointment.HasOne(a => a.Patient)
                            .WithMany()
                            .HasForeignKey(a => a.PatientId)
