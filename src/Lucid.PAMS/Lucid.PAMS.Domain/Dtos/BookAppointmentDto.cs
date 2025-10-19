@@ -14,7 +14,6 @@ namespace Lucid.PAMS.Domain.Dtos
         public Guid DoctorId { get; set; }
         public DateTime AppointmentDate { get; set; }
         public string Status { get; set; }
-        public int TokenNumber { get; set; }
         public string TenantId { get; set; }
 
     }

@@ -42,7 +42,7 @@ namespace Lucid.PAMS.Api.Validators
 
             // CreatedDate: ensure it's not in the future (adjust as needed)
             RuleFor(x => x.CreatedDate)
-                .LessThanOrEqualTo(DateTime.UtcNow).WithMessage("CreatedDate cannot be in the future.")
+                .Equal(DateTime.UtcNow).WithMessage("CreatedDate cannot be in the past or future.")
                 .When(x => x.CreatedDate != default(DateTime));
         }
     }
