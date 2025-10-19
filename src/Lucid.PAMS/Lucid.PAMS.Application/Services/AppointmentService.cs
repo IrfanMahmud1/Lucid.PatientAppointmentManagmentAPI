@@ -36,11 +36,7 @@ namespace Lucid.PAMS.Application.Services
             {
                 appointment.Id = Guid.NewGuid();
             }
-            // Default status to "Pending" if not provided
-            if (string.IsNullOrEmpty(appointment.Status))
-            {
-                appointment.Status = "Pending";
-            }
+
             try
             {
                 // this pre-check is only an early optimization.
@@ -53,6 +49,8 @@ namespace Lucid.PAMS.Application.Services
 
                 // Generate token number
                 appointmentEntity.TokenNumber = await GenerateTokenAsync(appointment.DoctorId, appointment.AppointmentDate);
+                // Set initial status
+                appointmentEntity.Status = "Pending";
 
                 // Save appointment
                 await _applicationUnitOfWork.AppointmentRepository.AddAsync(appointmentEntity);
